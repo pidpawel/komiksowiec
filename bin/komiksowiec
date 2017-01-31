@@ -1,0 +1,5 @@
+#!/usr/bin/env python3
+import komiksowiec
+
+if __name__ == '__main__':
+    komiksowiec.main()
