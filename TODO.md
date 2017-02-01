@@ -15,7 +15,6 @@ pobieranie nowych odcinków.
   - create docs (from docstrings)
   - create user manual (pdf)
   - add background crawl task (maybe with offline mode selector in menu)
-  - create required directories (image cache, settings)
   - test UI (QTest and mocks :3)
   - try to make "crawling with offset"
   - fix todos

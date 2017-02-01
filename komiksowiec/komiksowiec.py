@@ -1,4 +1,5 @@
 import os.path
+import os
 from .episode import Episode
 from .crawler import get_crawlers
 from .image_cache import ImageCache
@@ -14,7 +15,8 @@ class Komiksowiec:
         else:
             self.cache_dir = os.path.join(os.path.expanduser('~'), '.cache', 'komiksowiec')
 
-        # @TODO create cache dir
+        if not os.path.exists(self.cache_dir):
+            os.makedirs(self.cache_dir)
 
         self.episode_storage = EpisodeStorage(cache_dir=self.cache_dir)
         self.image_cache = ImageCache(cache_dir=self.cache_dir)
