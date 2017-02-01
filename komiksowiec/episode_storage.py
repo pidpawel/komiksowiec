@@ -62,7 +62,7 @@ class EpisodeStorage:
             self.episodes.append(episode)
 
     def list_episodes(self):
-        return self.episodes
+        return sorted(self.episodes, key=lambda episode: episode.date)
 
     def save(self):
         self._flush_db()

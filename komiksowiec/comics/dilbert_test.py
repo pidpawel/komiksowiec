@@ -26,7 +26,7 @@ def test_crawler():
                            callback=file_callback)
 
     d = dilbert.Dilbert()
-    results = d.crawl()
+    results = d.crawl(depth=3)
 
     assert len(results) == 9
 

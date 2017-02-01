@@ -10,7 +10,9 @@ class Episode:
         self.image_url = image_url
 
         if not date:
-            date = datetime.now()
+            date = datetime.utcnow()
+        elif isinstance(date, str):
+            date = datetime.fromtimestamp(float(date))
 
         self.date = date
 
@@ -19,6 +21,8 @@ class Episode:
 
         for field in self.fields:
             d[field] = getattr(self, field)
+
+        d['date'] = self.date.timestamp()
 
         return d
 
