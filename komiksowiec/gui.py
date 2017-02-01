@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets, QtGui
-from PyQt5.QtWidgets import QHBoxLayout, QLabel, QGroupBox, QPushButton, QVBoxLayout, QHBoxLayout, QWidget, QAction, qApp
+from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 import sys
@@ -49,7 +49,7 @@ class EpisodeWidget(QtWidgets.QWidget):
 class App(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-        self.komiksowiec = Komiksowiec()
+        self.komiksowiec = Komiksowiec(log_callback=self.changeStatus)
 
         self._init_window()
 
