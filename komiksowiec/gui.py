@@ -4,9 +4,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 import sys
 import os.path
-from .episode import Episode
-from .crawler import get_crawlers
-from .image_cache import ImageCache
+from .komiksowiec import Komiksowiec
 
 
 class EpisodeWidget(QtWidgets.QWidget):
@@ -51,19 +49,24 @@ class EpisodeWidget(QtWidgets.QWidget):
 class App(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
+        self.komiksowiec = Komiksowiec()
+
         self._init_window()
 
         self.showMaximized()
-
         # @TODO https://doc.qt.io/qt-5/qtwidgets-widgets-imageviewer-example.html
 
     def _init_window(self):
         self.setWindowTitle("Komiksowiec")
 
         self._init_main_widget()
-        self._init_menu()
-        self._init_status()
         self._init_docks()
+
+        self._init_actions()
+        self._init_menu()
+        self._init_toolbar()
+
+        self._init_status()
 
     def _init_main_widget(self):
         self.mainLayout = QtWidgets.QVBoxLayout()
@@ -71,9 +74,7 @@ class App(QtWidgets.QMainWindow):
         self.imageLabel = QtWidgets.QLabel()
         self.imageLabel.setAlignment(Qt.AlignCenter)
 
-        base_path = os.path.dirname(os.path.abspath(__file__))
-        logo_path = os.path.abspath(os.path.join(base_path, '..', 'logo.png'))
-        self.change_image(QtGui.QPixmap(logo_path))
+        self.change_image(None)
 
         self.mainLayout.addWidget(self.imageLabel)
 
@@ -82,15 +83,28 @@ class App(QtWidgets.QMainWindow):
 
         self.setCentralWidget(self.mainWidget)
 
-    def _init_menu(self):
-        exitAction = QAction(QIcon('exit.png'), '&Exit', self)
-        exitAction.setShortcut('Ctrl+Q')
-        exitAction.setStatusTip('Exit application')
-        exitAction.triggered.connect(qApp.quit)
+    def _init_actions(self):
+        # https://standards.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
+        self.exitAction = QAction(QIcon.fromTheme('application-exit'), 'Exit')
+        self.exitAction.setShortcut('Ctrl+Q')
+        self.exitAction.setStatusTip('Exit application')
+        self.exitAction.triggered.connect(qApp.quit)
 
+        self.updateAction = QAction(QIcon.fromTheme('view-refresh'), 'Update')
+        self.updateAction.setShortcut('Ctrl+Q')
+        self.updateAction.setStatusTip('Exit application')
+        self.updateAction.triggered.connect(self.update)
+
+    def _init_menu(self):
         menubar = self.menuBar()
-        fileMenu = menubar.addMenu('&File')
-        fileMenu.addAction(exitAction)
+
+        fileMenu = menubar.addMenu('File')
+        fileMenu.addAction(self.exitAction)
+
+    def _init_toolbar(self):
+        self.toolbar = self.addToolBar('Toolbar')
+        self.toolbar.addAction(self.exitAction)
+        self.toolbar.addAction(self.updateAction)
 
     def _init_status(self):
         self.status = self.statusBar()
@@ -103,35 +117,46 @@ class App(QtWidgets.QMainWindow):
         self.listWidget.itemClicked.connect(self.episodeClicked)
         self.listWidget.currentItemChanged.connect(self.episodeClicked)
 
-        self.cache = ImageCache()
-        crawlers = get_crawlers()
-        episodes = []
+        self.listDock.setWidget(self.listWidget)
+        self.addDockWidget(Qt.RightDockWidgetArea, self.listDock)
 
-        for crawler_class in crawlers:
-            crawler = crawler_class()
-            episodes += crawler.crawl()
+        self.refresh_list()
 
-        for episode in episodes:
-            self.cache.cache_image(episode.image_url)
+    def refresh_list(self):
+        self.listWidget.clear()
 
+        for episode in self.komiksowiec.get_comics():
             episodeWidget = EpisodeWidget(episode)
             episodeWidgetItem = QtWidgets.QListWidgetItem()
             episodeWidgetItem.setSizeHint(episodeWidget.sizeHint())
             self.listWidget.addItem(episodeWidgetItem)
             self.listWidget.setItemWidget(episodeWidgetItem, episodeWidget)
 
-        self.listDock.setWidget(self.listWidget)
-        self.addDockWidget(Qt.RightDockWidgetArea, self.listDock)
-
     def change_image(self, pixmap):
+        if not pixmap:
+            base_path = os.path.dirname(os.path.abspath(__file__))
+            logo_path = os.path.abspath(os.path.join(base_path, '..', 'logo.png'))
+            self.imageLabel.setPixmap(QtGui.QPixmap(logo_path))
+            return
+
         self.imageLabel.setPixmap(pixmap)
 
     def changeStatus(self, text):
         self.status.showMessage(text)
 
     def episodeClicked(self, item):
+        if not item:
+            self.change_image(None)
+            return
+
         widget = self.listWidget.itemWidget(item)
-        self.change_image(QtGui.QPixmap(self.cache.get_image_path(widget.episode.image_url)))
+        image_path = self.komiksowiec.image_cache.get_image_path(widget.episode.image_url)
+        self.change_image(QtGui.QPixmap(image_path))
+
+    def update(self):
+        self.komiksowiec.update()
+        self.refresh_list()
+        self.listWidget.setCurrentRow(0)
 
 
 def main():

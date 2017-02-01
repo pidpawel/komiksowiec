@@ -41,8 +41,25 @@ class EpisodeStorage:
                 writer.writerow(episode.as_dict())
                 # @TODO date formatting
 
+    def has_episode(self, new_episode):
+        ''' Finds episode by attributes '''
+        compare = ['name', 'series', 'image_url']
+
+        for episode in self.episodes:
+            found = 0
+
+            for key in compare:
+                if getattr(episode, key) == getattr(new_episode, key):
+                    found += 1
+
+            if found == len(compare):
+                return True
+
+        return False
+
     def add_episode(self, episode):
-        self.episodes.append(episode)
+        if not self.has_episode(episode):
+            self.episodes.append(episode)
 
     def list_episodes(self):
         return self.episodes
