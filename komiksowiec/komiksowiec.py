@@ -32,7 +32,7 @@ class Komiksowiec:
 
         # Get episodes
         for crawler in self.crawlers:
-            self._log('Crawling {}...'.format(crawler.__name__))
+            self._log('Crawling {}...'.format(crawler.__class__.__name__))
             new_episodes += crawler.crawl()
 
         self._log('Got {} episodes.'.format(len(new_episodes)))
