@@ -4,6 +4,7 @@ from .episode import Episode
 from .crawler import get_crawlers
 from .image_cache import ImageCache
 from .episode_storage import EpisodeStorage
+from .settings_container import SettingsContainer
 
 
 class Komiksowiec:
@@ -20,6 +21,7 @@ class Komiksowiec:
 
         self.episode_storage = EpisodeStorage(cache_dir=self.cache_dir)
         self.image_cache = ImageCache(cache_dir=self.cache_dir)
+        self.settings = SettingsContainer(cache_dir=self.cache_dir)
 
         self.crawlers = [crawler_class() for crawler_class in get_crawlers()]
 
