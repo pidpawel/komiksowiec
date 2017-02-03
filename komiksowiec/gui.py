@@ -105,6 +105,11 @@ class App(QtWidgets.QMainWindow):
 
     def _init_window(self):
         self.setWindowTitle("Komiksowiec")
+        flags = self.windowFlags() | Qt.Window
+        flags |= Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowSystemMenuHint
+        flags |= Qt.WindowMinimizeButtonHint | Qt.WindowMaximizeButtonHint | Qt.WindowCloseButtonHint
+        flags |= Qt.WindowMinMaxButtonsHint
+        self.setWindowFlags(flags)
 
         # http://zetcode.com/gui/pyqt5/menustoolbars/
         self._init_main_widget()
@@ -121,6 +126,8 @@ class App(QtWidgets.QMainWindow):
 
         self.imageLabel = QtWidgets.QLabel()
         self.imageLabel.setAlignment(Qt.AlignCenter)
+        self.imageLabel.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+        self.imageLabel.setScaledContents(False)
 
         self.change_image(None)
 
@@ -177,6 +184,10 @@ class App(QtWidgets.QMainWindow):
 
         self.refresh_list()
 
+    def resizeEvent(self, event):
+        self.redrawComic()
+        super().resizeEvent(event)
+
     def refresh_list(self):
         self.listWidget.clear()
 
@@ -191,10 +202,22 @@ class App(QtWidgets.QMainWindow):
         if not pixmap:
             base_path = os.path.dirname(os.path.abspath(__file__))
             logo_path = os.path.abspath(os.path.join(base_path, '..', 'logo.png'))
-            self.imageLabel.setPixmap(QtGui.QPixmap(logo_path))
-            return
+            self.pixmap = QtGui.QPixmap(logo_path)
+        else:
+            self.pixmap = pixmap
 
-        self.imageLabel.setPixmap(pixmap)
+        self.redrawComic()
+
+    def redrawComic(self):
+        max_w = self.imageLabel.width()
+        max_h = self.imageLabel.height()
+
+        if self.pixmap.width() > max_w or self.pixmap.height() > max_h:
+            image = self.pixmap.scaled(max_w, max_h, Qt.KeepAspectRatio)
+        else:
+            image = self.pixmap
+
+        self.imageLabel.setPixmap(image)
 
     def changeStatus(self, text):
         print(text)
