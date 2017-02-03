@@ -6,8 +6,8 @@ from ..episode import Episode
 
 # http://docs.python-guide.org/en/latest/scenarios/scrape/
 class Garfield(Crawler):
-    def __init__(self, http=False):
-        self.http = http
+    def __init__(self, test=False):
+        self.http = test
         self.session = requests.Session()
 
     def _verify_age(self):

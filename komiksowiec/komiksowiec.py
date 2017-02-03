@@ -8,7 +8,7 @@ from .settings_container import SettingsContainer
 
 
 class Komiksowiec:
-    def __init__(self, log_callback=None, cache_dir=None):
+    def __init__(self, log_callback=None, cache_dir=None, test=False):
         self.log_callback = log_callback
 
         if cache_dir:
@@ -25,7 +25,7 @@ class Komiksowiec:
         self.settings = SettingsContainer(cache_dir=self.cache_dir)
         self.settings.register_default('update_interval', 15)
 
-        self.crawlers = [crawler_class() for crawler_class in get_crawlers()]
+        self.crawlers = [crawler_class(test=test) for crawler_class in get_crawlers()]
 
     def _log(self, text):
         if self.log_callback:
@@ -55,6 +55,8 @@ class Komiksowiec:
 
         self.episode_storage.save()
         self._log('Done!')
+
+        return len(new_episodes)
 
     def get_comics(self):
         ''' Retrieves a current comic list (archieved or new ones) '''

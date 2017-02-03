@@ -6,6 +6,9 @@ from ..episode import Episode
 
 # http://docs.python-guide.org/en/latest/scenarios/scrape/
 class Dilbert(Crawler):
+    def __init__(self, test=False):
+        pass
+
     def crawl(self, depth=1):
         episodes = []
         for i in range(depth):

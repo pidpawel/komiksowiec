@@ -33,7 +33,7 @@ def test_crawler():
                            re.compile('http://garfield\.com/.*'),
                            callback=file_callback)
 
-    g = garfield.Garfield(http=True)
+    g = garfield.Garfield(test=True)
     results = g.crawl(depth=3)
 
     assert len(results) == 3

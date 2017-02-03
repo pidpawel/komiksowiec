@@ -6,6 +6,9 @@ from ..episode import Episode
 
 # http://docs.python-guide.org/en/latest/scenarios/scrape/
 class PHDComics(Crawler):
+    def __init__(self, test=False):
+        pass
+
     def crawl(self, depth=3):
         episodes = []
 
