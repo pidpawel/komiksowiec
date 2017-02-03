@@ -5,18 +5,20 @@ import inspect
 
 
 class Crawler:
-    '''
-    Crawler interface
-    All Comic crawlers should implement this
+    '''Crawler interface.
+
+    All Comic crawlers should implement this.
     '''
     def crawl(self):
-        '''
-        Returns a list of crawled Episodes
-        '''
+        '''Returns a list of crawled Episodes.'''
         raise NotImplemented
 
 
 def get_crawlers():
+    '''Function for obtaining a list of Crawler-implementing classes
+
+    :returns: list of Crawler children classes
+    ''' 
     crawlers = []
 
     base_path = os.path.dirname(os.path.abspath(__file__))

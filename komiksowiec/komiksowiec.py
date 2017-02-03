@@ -8,7 +8,14 @@ from .settings_container import SettingsContainer
 
 
 class Komiksowiec:
+    '''The glue logic module for all high-level tasks of the project'''
+
     def __init__(self, log_callback=None, cache_dir=None, test=False):
+        '''
+        :param log_callback: callable to call when there is something to report to user
+        :param cache_dir: directory to store all the caches and settings
+        :param test: whether it is a test run (applies some http quirks not to call real services)
+        '''
         self.log_callback = log_callback
 
         if cache_dir:
@@ -28,11 +35,18 @@ class Komiksowiec:
         self.crawlers = [crawler_class(test=test) for crawler_class in get_crawlers()]
 
     def _log(self, text):
+        '''Internal logging helper.
+
+        :param text: text to call callback for
+        '''
         if self.log_callback:
             self.log_callback(text)
 
     def update(self):
-        ''' Do a periodic update (crawl, delete old ones,…) '''
+        '''Do a periodic update (crawl, delete old ones,…)
+
+        :returns: a count of crawled episodes (not necesarily new ones)
+        '''
         new_episodes = []
         self._log('Crawling...')
 
@@ -59,5 +73,8 @@ class Komiksowiec:
         return len(new_episodes)
 
     def get_comics(self):
-        ''' Retrieves a current comic list (archieved or new ones) '''
+        '''Retrieves a current comic list (archieved or new ones)
+
+        :returns: sorted list (by date) of all episodes in cache
+        '''
         return sorted(self.episode_storage.list_episodes(), key=lambda episode: episode.date, reverse=True)

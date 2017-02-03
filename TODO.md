@@ -1,25 +1,20 @@
 ToDo
 ====
 
-32. Komiksowiec
-Przeglądarka pasków komiksowych z popularnych serii (np. Dilbert http://dilbert.com/, Garfield
-https://garfield.com/comic, PHD Comic http://phdcomics.com/).
-Program powinien zapewniać archiwizację odcinków do przeglądania off-line oraz automatyczne
-pobieranie nowych odcinków.
-
 ## High priority
-  - learn how to test PyQt5 and refactor app to support this
-  - test UI (QTest and mocks :3)
-  - make setup.py file
+  - empty
 
 ## Medium priority
-  - create docs (from docstrings)
-  - create user manual (pdf)
+  - empty
 
 ## Low priority
+  - test UI (QTest) - probably just try to click buttons and see if app does not crash. All the "integration" tests are done in `Komiksowiec` class
+  - convert to setup.py
   - move tests to separate directory
   - translations
   - get comic dates from www
+  - implement extra settings
+  - implement cron-ready console updater
 
 ## Extra settings
   - days to store comics
