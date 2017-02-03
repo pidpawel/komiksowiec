@@ -28,14 +28,14 @@ class ImageCache:
         '''
         filename = self._get_image_path(url)
 
-        # @TODO error catching
-        # try:
-        r = requests.get(url)
-
-        if r.status_code == 200:
-            with open(filename, 'wb') as f:
-                f.write(r.content)
-        # except pass
+        try:
+            r = requests.get(url)
+        except requests.exceptions.RequestException:
+            pass
+        else:
+            if r.status_code == 200:
+                with open(filename, 'wb') as f:
+                    f.write(r.content)
 
     def is_cached(self, url):
         return os.path.isfile(self._get_image_path(url))

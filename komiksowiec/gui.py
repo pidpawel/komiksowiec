@@ -1,19 +1,20 @@
-from PyQt5 import QtWidgets, QtGui
+from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon, QRegExpValidator
+from PyQt5.QtCore import Qt, QRegExp, QTimer
 import sys
 import os.path
+import requests
 from .komiksowiec import Komiksowiec
 
 
 class EpisodeWidget(QtWidgets.QWidget):
+    # https://stackoverflow.com/questions/25187444/pyqt-qlistwidget-custom-items
     def __init__(self, episode=None, parent=None):
         super().__init__(parent)
 
         self.titleLabel = QtWidgets.QLabel()
         self.seriesLabel = QtWidgets.QLabel()
-        self.dateLabel = QtWidgets.QLabel()
 
         self.episode = None
 
@@ -35,30 +36,75 @@ class EpisodeWidget(QtWidgets.QWidget):
         self.setLayout(self.mainLayout)
 
     def _style(self):
-        # @TODO style it
-        pass
+        self.titleLabel.setStyleSheet('font-weight: bold;')
 
     def fillData(self, episode):
         self.episode = episode
 
         self.titleLabel.setText(episode.name)
         self.seriesLabel.setText(episode.series)
-        # self.dateLabel.setText(episode.date)
+
+
+class SettingsDialog(QtWidgets.QDialog):
+    def __init__(self, komiksowiec, parent=None):
+        super().__init__(parent)
+        self.komiksowiec = komiksowiec
+
+        self.setWindowTitle('Settings')
+
+        self.layout = QVBoxLayout()
+        self.setLayout(self.layout)
+
+        self.digitRe = QRegExp()
+        self.digitRe.setPattern('[0-9]+')
+
+        self.intervalLayout = QHBoxLayout()
+        self.intervalLabel = QLabel('Interval')
+        self.intervalInput = QLineEdit(str(self.komiksowiec.settings.get('update_interval')))
+        self.intervalInput.setValidator(QRegExpValidator(self.digitRe))
+        self.intervalLayout.addWidget(self.intervalLabel)
+        self.intervalLayout.addWidget(self.intervalInput)
+        self.layout.addLayout(self.intervalLayout)
+
+        self.buttonsLayout = QHBoxLayout()
+        self.cancelButton = QPushButton('Cancel')
+        self.cancelButton.clicked.connect(self.cancel)
+        self.saveButton = QPushButton('Save')
+        self.saveButton.clicked.connect(self.save)
+        self.buttonsLayout.addWidget(self.cancelButton)
+        self.buttonsLayout.addWidget(self.saveButton)
+        self.layout.addLayout(self.buttonsLayout)
+
+    def cancel(self):
+        self.close()
+
+    def save(self):
+        settings = self.komiksowiec.settings
+        settings.set('update_interval', int(self.intervalInput.text()))
+        settings.save()
+        self.close()
 
 
 class App(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
         self.komiksowiec = Komiksowiec(log_callback=self.changeStatus)
+        self.settingsDialog = SettingsDialog(komiksowiec=self.komiksowiec)
 
         self._init_window()
 
         self.showMaximized()
-        # @TODO https://doc.qt.io/qt-5/qtwidgets-widgets-imageviewer-example.html
+        # https://doc.qt.io/qt-5/qtwidgets-widgets-imageviewer-example.html
+        # https://pythonspot.com/en/pyqt5/
+
+        self.updateTimer = QTimer()
+        self.updateTimer.timeout.connect(self.update)
+        self.updateTimer.start(1000 * self.komiksowiec.settings.get('update_interval'))
 
     def _init_window(self):
         self.setWindowTitle("Komiksowiec")
 
+        # http://zetcode.com/gui/pyqt5/menustoolbars/
         self._init_main_widget()
         self._init_docks()
 
@@ -91,9 +137,14 @@ class App(QtWidgets.QMainWindow):
         self.exitAction.triggered.connect(qApp.quit)
 
         self.updateAction = QAction(QIcon.fromTheme('view-refresh'), 'Update')
-        self.updateAction.setShortcut('Ctrl+Q')
-        self.updateAction.setStatusTip('Exit application')
+        self.updateAction.setShortcut('Ctrl+U')
+        self.updateAction.setStatusTip('Update comics')
         self.updateAction.triggered.connect(self.update)
+
+        self.settingsAction = QAction(QIcon.fromTheme('emblem-system'), 'Settings')
+        self.settingsAction.setShortcut('Ctrl+S')
+        self.settingsAction.setStatusTip('Open settings')
+        self.settingsAction.triggered.connect(self.openSettings)
 
     def _init_menu(self):
         menubar = self.menuBar()
@@ -105,12 +156,14 @@ class App(QtWidgets.QMainWindow):
         self.toolbar = self.addToolBar('Toolbar')
         self.toolbar.addAction(self.exitAction)
         self.toolbar.addAction(self.updateAction)
+        self.toolbar.addAction(self.settingsAction)
 
     def _init_status(self):
         self.status = self.statusBar()
         self.changeStatus('Starting...')
 
     def _init_docks(self):
+        # https://www.tutorialspoint.com/pyqt/pyqt_qdockwidget.htm
         self.listDock = QtWidgets.QDockWidget('Episode list', self)
 
         self.listWidget = QtWidgets.QListWidget()
@@ -154,9 +207,16 @@ class App(QtWidgets.QMainWindow):
         self.change_image(QtGui.QPixmap(image_path))
 
     def update(self):
-        self.komiksowiec.update()
-        self.refresh_list()
-        self.listWidget.setCurrentRow(0)
+        try:
+            self.komiksowiec.update()
+        except requests.exceptions.RequestException:
+            self.changeStatus('Could not connect to the network')
+        else:
+            self.refresh_list()
+            self.listWidget.setCurrentRow(0)
+
+    def openSettings(self):
+        self.settingsDialog.exec_()
 
 
 def main():

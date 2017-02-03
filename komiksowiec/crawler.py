@@ -26,7 +26,7 @@ def get_crawlers():
         if '_test' in candidate or '__init__' in candidate:
             continue
 
-        candidate = os.path.basename(candidate).split('.')[0]  # @TODO make it sane
+        candidate = os.path.splitext(os.path.basename(candidate))[0]
 
         module = importlib.import_module('.comics.' + candidate, 'komiksowiec')
 

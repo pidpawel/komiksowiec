@@ -29,7 +29,6 @@ class EpisodeStorage:
 
             for row in reader:
                 episode = Episode(**row)
-                # @TODO date formatting
                 self.episodes.append(episode)
 
     def _flush_db(self):
@@ -39,7 +38,6 @@ class EpisodeStorage:
             writer.writeheader()
             for episode in self.episodes:
                 writer.writerow(episode.as_dict())
-                # @TODO date formatting
 
     def has_episode(self, new_episode):
         ''' Finds episode by attributes '''

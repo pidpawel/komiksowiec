@@ -21,7 +21,9 @@ class Komiksowiec:
 
         self.episode_storage = EpisodeStorage(cache_dir=self.cache_dir)
         self.image_cache = ImageCache(cache_dir=self.cache_dir)
+
         self.settings = SettingsContainer(cache_dir=self.cache_dir)
+        self.settings.register_default('update_interval', 15)
 
         self.crawlers = [crawler_class() for crawler_class in get_crawlers()]
 

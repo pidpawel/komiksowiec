@@ -4,6 +4,7 @@ from ..crawler import *
 from ..episode import Episode
 
 
+# http://docs.python-guide.org/en/latest/scenarios/scrape/
 class Dilbert(Crawler):
     def __init__(self, image_cache=None):
         self.image_cache = image_cache
