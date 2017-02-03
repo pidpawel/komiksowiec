@@ -6,9 +6,6 @@ from ..episode import Episode
 
 # http://docs.python-guide.org/en/latest/scenarios/scrape/
 class Dilbert(Crawler):
-    def __init__(self, image_cache=None):
-        self.image_cache = image_cache
-
     def crawl(self, depth=1):
         episodes = []
         for i in range(depth):
@@ -34,9 +31,6 @@ class Dilbert(Crawler):
                         name=title,
                         series=series,
                         image_url=image.get('src'))
-
-                    if self.image_cache:
-                        self.image_cache.cache_image(image_url)
 
                     episodes.append(episode)
 

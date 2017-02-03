@@ -99,7 +99,9 @@ class App(QtWidgets.QMainWindow):
 
         self.updateTimer = QTimer()
         self.updateTimer.timeout.connect(self.update)
-        self.updateTimer.start(1000 * self.komiksowiec.settings.get('update_interval'))
+        self.updateTimer.start(1000 * 60 * self.komiksowiec.settings.get('update_interval'))
+
+        self.update()
 
     def _init_window(self):
         self.setWindowTitle("Komiksowiec")
@@ -195,6 +197,7 @@ class App(QtWidgets.QMainWindow):
         self.imageLabel.setPixmap(pixmap)
 
     def changeStatus(self, text):
+        print(text)
         self.status.showMessage(text)
 
     def episodeClicked(self, item):
@@ -213,7 +216,7 @@ class App(QtWidgets.QMainWindow):
             self.changeStatus('Could not connect to the network')
         else:
             self.refresh_list()
-            self.listWidget.setCurrentRow(0)
+            # self.listWidget.setCurrentRow(0)
 
     def openSettings(self):
         self.settingsDialog.exec_()
