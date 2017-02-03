@@ -58,4 +58,4 @@ class Komiksowiec:
 
     def get_comics(self):
         ''' Retrieves a current comic list (archieved or new ones) '''
-        return self.episode_storage.list_episodes()
+        return sorted(self.episode_storage.list_episodes(), key=lambda episode: episode.date, reverse=True)

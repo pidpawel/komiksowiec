@@ -19,6 +19,7 @@ pobieranie nowych odcinków.
 ## Low priority
   - move tests to separate directory
   - translations
+  - get comic dates from www
 
 ## Extra settings
   - days to store comics

@@ -8,7 +8,9 @@ from . import garfield
 @responses.activate
 def test_crawler():
     def file_callback(request):
-        if request.url == "http://garfield.com/agegate":
+        if request.url == "http://garfield.com/":
+            filename = "garfield_agegate.html"
+        elif request.url == "http://garfield.com/agegate":
             filename = "garfield_agegate.html"
         elif request.url == "http://garfield.com/comic/2017/02/02":
             filename = "garfield_test_yesterday.html"

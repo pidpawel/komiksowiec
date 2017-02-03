@@ -11,7 +11,7 @@ class Garfield(Crawler):
         self.session = requests.Session()
 
     def _verify_age(self):
-        url = "https://garfield.com/comic/"
+        url = "https://garfield.com/"
 
         if self.http:
             url = url.replace('https', 'http')
